@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  rust-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: paybridge-notification-service
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+networks:
+  paybridge_network:
+
