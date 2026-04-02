@@ -1,15 +1,37 @@
 version: "3.9"
 
 services:
+
+  # -------------------------------------------------------
+  # Rust API - Notification Service
+  # -------------------------------------------------------
   rust-api:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: paybridge-notification-service
     ports:
       - "8081:8081"
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8081
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_FROM=no-reply@paybridge.local
+    depends_on:
+      - mailhog
     restart: unless-stopped
+    networks:
+      - paybridge_network
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: paybridge-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - paybridge_network
 
 networks:
   paybridge_network:
-
+    driver: bridge
