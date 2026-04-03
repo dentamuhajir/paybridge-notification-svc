@@ -2,7 +2,7 @@ use actix_web::web;
 use std::sync::Arc;
 
 use crate::domain::notification::{
-    routes::test_email,
+    routes::{test_email, registration_email},
     service::NotificationService,
 };
 use crate::infrastructure::{
@@ -34,5 +34,6 @@ pub fn configure_notification(cfg: &mut web::ServiceConfig) {
     // 4. Register the service as app_data and mount the routes
     cfg
         .app_data(web::Data::new(notification_service))
-        .service(test_email);
+        .service(test_email)
+        .service(registration_email);
 }
