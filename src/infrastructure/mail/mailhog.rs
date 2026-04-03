@@ -1,6 +1,9 @@
 use crate::domain::notification::port::EmailSender;
 use anyhow::Result;
-use lettre::{Message, SmtpTransport, Transport};
+use lettre::{
+    message::{header::ContentType, SinglePart},
+    Message, SmtpTransport, Transport,
+};
 
 pub struct MailhogEmailSender {
     mailer: SmtpTransport,
@@ -30,12 +33,26 @@ impl MailhogEmailSender {
 
 impl EmailSender for MailhogEmailSender {
     fn send(&self, to: &str, subject: &str, body: &str) -> Result<()> {
-        // Build the email using lettre's Message builder
+        // Build the email with an explicit `text/html; charset=utf-8` content type.
+        //
+        // WHY: lettre's `.body(String)` defaults to `text/plain`, which causes
+        // two problems in MailHog:
+        //   1. HTML tags are shown as raw text instead of being rendered.
+        //   2. The body gets Quoted-Printable encoded, turning `=` into `=3D`,
+        //      `>` into surrounding noise, etc.
+        //
+        // Fix: use `SinglePart::builder()` with `ContentType::TEXT_HTML` so
+        // lettre knows to set `Content-Type: text/html; charset=utf-8` and
+        // encode it correctly as UTF-8, not Quoted-Printable.
         let email = Message::builder()
-            .from(self.from.parse()?)   // parse "no-reply@paybridge.local" -> Mailbox
-            .to(to.parse()?)            // parse "test@paybridge.local"     -> Mailbox
+            .from(self.from.parse()?)
+            .to(to.parse()?)
             .subject(subject)
-            .body(body.to_string())?;
+            .singlepart(
+                SinglePart::builder()
+                    .header(ContentType::TEXT_HTML)
+                    .body(body.to_string()),
+            )?;
 
         // Send the email via the SMTP transport
         self.mailer.send(&email)?;
