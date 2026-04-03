@@ -18,20 +18,10 @@ services:
       - SMTP_HOST=mailhog
       - SMTP_PORT=1025
       - SMTP_FROM=no-reply@paybridge.local
-    depends_on:
-      - mailhog
     restart: unless-stopped
-    networks:
-      - paybridge_network
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: paybridge-mailhog
-    ports:
-      - "1025:1025"
-      - "8025:8025"
     networks:
       - paybridge_network
 
 networks:
   paybridge_network:
-    driver: bridge
+    external: true
