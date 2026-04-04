@@ -7,6 +7,9 @@ mod startup;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // Initialize logging
+    env_logger::init();
+
     // Load config once here just to print startup info
     let config = Config::load();
 

@@ -57,7 +57,7 @@ impl EmailSender for MailhogEmailSender {
         // Send the email via the SMTP transport
         self.mailer.send(&email)?;
 
-        println!("✅ Email successfully sent to: {to}");
+        println!("Email successfully sent to: {to}");
         Ok(())
     }
 }
